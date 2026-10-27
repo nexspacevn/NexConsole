@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="page-type" content="account">
+  <title>NexConsole | Account &amp; Security</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg?v=2">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="style.css?v=13">
+</head>
+<body>
+  <div class="account-app-wrapper">
+    <!-- Cyber Background Elements -->
+    <div class="ambient-glow ambient-top-right"></div>
+    <div class="ambient-glow ambient-bottom-left"></div>
+    <div class="cyber-grid-bg"></div>
+
+    <!-- Top Bar (Identical to Home) -->
+    <header class="console-navbar">
+      <div class="console-brand">
+        <a href="/" class="brand-link" title="WebConsole Home">
+          <img src="../nexicon-cl.svg" alt="NexConsole Logo" class="brand-logo-icon">
+          <span class="brand-title">NEXCONSOLE</span>
+        </a>
+      </div>
+
+      <!-- Controls -->
+      <div class="console-controls">
+        <div class="lang-switcher">
+          <button type="button" class="lang-btn active" data-lang="en">EN</button>
+          <span class="lang-divider">|</span>
+          <button type="button" class="lang-btn" data-lang="vi">VI</button>
+        </div>
+
+        <button id="btnRegisterPasskey" class="ctrl-btn passkey-btn" title="Add Touch ID / Passkey for this device" data-i18n-title="passkey_nav_title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 004.07 9m5.93 11a10.038 10.038 0 003.568-1.785"/>
+          </svg>
+          <span data-i18n="passkey_nav_btn">Passkey</span>
+        </button>
+        <button id="btnFontSizeMinus" class="ctrl-btn" title="Decrease font size" data-i18n-title="font_minus_title">A-</button>
+        <button id="btnFontSizePlus" class="ctrl-btn" title="Increase font size" data-i18n-title="font_plus_title">A+</button>
+        <button id="btnFullscreen" class="ctrl-btn" title="Fullscreen" data-i18n-title="fullscreen_title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        </button>
+        <button id="btnToggleSidebar" class="ctrl-btn" title="Toggle sidebar" data-i18n-title="toggle_sidebar_title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+        </button>
+        <!-- User Profile Dropdown Menu -->
+        <div class="user-profile-menu-container" id="userProfileMenuContainer">
+          <button type="button" class="user-profile-trigger" id="userProfileTrigger" title="User Account" data-i18n-title="user_profile_title" aria-expanded="false">
+            <div class="user-avatar-circle" id="userNavAvatar">AD</div>
+          </button>
+          
+          <div class="user-dropdown-popover" id="userDropdownPopover" style="display: none;">
+            <div class="dropdown-user-card">
+              <div class="dropdown-avatar-lg" id="dropdownAvatarLg">AD</div>
+              <div class="dropdown-details">
+                <div class="dropdown-name" id="dropdownFullName">Administrator</div>
+                <div class="dropdown-username" id="dropdownUserName">@admin</div>
+              </div>
+            </div>
+
+            <div class="dropdown-menu-list">
+              <a href="/account/?tab=profile" class="dropdown-menu-item" id="navLinkProfile">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+                <span data-i18n="nav_profile">Profile</span>
+              </a>
+
+              <a href="/account/?tab=security" class="dropdown-menu-item" id="navLinkSecurity">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+                <span data-i18n="nav_security">Security</span>
+              </a>
+
+              <a href="/account/" class="dropdown-menu-item" id="navLinkAccount">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                <span data-i18n="nav_settings">Settings</span>
+              </a>
+
+              <div class="dropdown-item-separator"></div>
+
+              <button type="button" class="dropdown-menu-item item-danger" id="btnLogoutLayer1">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                  <polyline points="16 17 21 12 16 7"/>
+                  <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+                <span data-i18n="nav_logout">Logout</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="account-main-layout">
+      <!-- Sidebar Navigation Tabs -->
+      <aside class="account-sidebar">
+        <nav class="account-nav-tabs">
+          <button class="nav-tab-btn active" data-tab="profile" id="tabBtnProfile">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <div class="tab-label-wrap">
+              <span class="tab-label" data-i18n="tab_btn_profile">Profile</span>
+              <span class="tab-desc" data-i18n="tab_btn_profile_desc">Linked account info</span>
+            </div>
+          </button>
+
+          <button class="nav-tab-btn" data-tab="security" id="tabBtnSecurity">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            <div class="tab-label-wrap">
+              <span class="tab-label" data-i18n="tab_btn_security">Security</span>
+              <span class="tab-desc" data-i18n="tab_btn_security_desc">Password, 2FA &amp; Passkey</span>
+            </div>
+            <span class="tab-status-dot" id="tabSecurityDot"></span>
+          </button>
+
+          <button class="nav-tab-btn" data-tab="commands" id="tabBtnCommands">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="4 17 10 11 4 5"/>
+              <line x1="12" y1="19" x2="20" y2="19"/>
+            </svg>
+            <div class="tab-label-wrap">
+              <span class="tab-label" data-i18n="tab_btn_commands">Quick Commands</span>
+              <span class="tab-desc" data-i18n="tab_btn_commands_desc">Terminal shortcuts</span>
+            </div>
+          </button>
+        </nav>
+      </aside>
+
+      <!-- Panel: Profile (Hồ sơ cá nhân) -->
+      <section class="account-tab-panel active" id="panelProfile">
+        <div class="panel-header">
+          <h2 class="panel-title" data-i18n="panel_profile_title">Profile</h2>
+          <p class="panel-subtitle" data-i18n="panel_profile_sub">Manage your display name and contact credentials.</p>
+        </div>
+
+        <!-- User Summary Card -->
+        <div class="cyber-card user-summary-card">
+          <div class="user-summary-avatar-box">
+            <div class="user-summary-avatar" id="profileCardAvatar">AD</div>
+          </div>
+          <div class="user-summary-meta">
+            <h3 class="user-summary-name" id="profileSummaryName">Administrator</h3>
+            <span class="user-summary-user" id="profileSummaryUsername">@admin</span>
+            <div class="user-summary-badges">
+              <span class="badge-cyber badge-admin" data-i18n="badge_admin">Administrator</span>
+              <span class="badge-cyber badge-status" id="profile2faBadge">2FA: Loading...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form: Update Profile -->
+        <div class="cyber-card">
+          <div class="card-header">
+            <h3 class="card-title" data-i18n="card_basic_info">Basic Information</h3>
+          </div>
+          <form id="formProfile" class="card-body form-grid">
+            <div class="form-group">
+              <label for="profUsername" data-i18n="label_username">Login Username</label>
+              <div class="input-wrap disabled-wrap">
+                <input type="text" id="profUsername" value="admin" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="input-icon-lock"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="profDisplayName" data-i18n="label_display_name">Display Name</label>
+              <div class="input-wrap">
+                <input type="text" id="profDisplayName" placeholder="Enter display name..." data-i18n-placeholder="placeholder_display_name" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="profEmail" data-i18n="label_email">Contact Email</label>
+              <div class="input-wrap disabled-wrap">
+                <input type="email" id="profEmail" placeholder="admin@nexspace.vn" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="input-icon-lock"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" id="btnSaveProfile" class="btn-cyber btn-primary">
+                <span data-i18n="btn_save_profile">Save Changes</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Panel: Security (Bảo mật: 1. Đổi mật khẩu -> 2. Box 2FA -> 3. Box Passkey) -->
+      <section class="account-tab-panel" id="panelSecurity">
+        <div class="panel-header">
+          <h2 class="panel-title" data-i18n="panel_security_title">Security</h2>
+          <p class="panel-subtitle" data-i18n="panel_security_sub">Manage password, two-factor authentication, and biometric login.</p>
+        </div>
+
+        <!-- 1. Form: Đổi mật khẩu (Được đưa lên đầu tab Bảo mật) -->
+        <div class="cyber-card">
+          <div class="card-header">
+            <h3 class="card-title" data-i18n="card_change_password">Change Password</h3>
+          </div>
+          <form id="formPassword" class="card-body form-grid">
+            <div class="form-group">
+              <label for="passCurrent" data-i18n="label_current_password">Current Password</label>
+              <div class="input-wrap password-wrap">
+                <input type="password" id="passCurrent" placeholder="••••••••" required autocomplete="current-password">
+                <button type="button" class="btn-toggle-pass" title="Show password" data-i18n-title="title_show_password" aria-label="Show password">
+                  <svg class="eye-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg class="eye-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="passNew" data-i18n="label_new_password">New Password</label>
+              <div class="input-wrap password-wrap">
+                <input type="password" id="passNew" placeholder="At least 6 characters..." data-i18n-placeholder="placeholder_new_password" required autocomplete="new-password">
+                <button type="button" class="btn-toggle-pass" title="Show password" data-i18n-title="title_show_password" aria-label="Show password">
+                  <svg class="eye-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg class="eye-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="passConfirm" data-i18n="label_confirm_password">Confirm New Password</label>
+              <div class="input-wrap password-wrap">
+                <input type="password" id="passConfirm" placeholder="Re-enter new password..." data-i18n-placeholder="placeholder_confirm_password" required autocomplete="new-password">
+                <button type="button" class="btn-toggle-pass" title="Show password" data-i18n-title="title_show_password" aria-label="Show password">
+                  <svg class="eye-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg class="eye-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div id="passwordAlert" class="alert-box" style="display: none;"></div>
+
+            <div class="form-actions">
+              <button type="submit" id="btnSavePassword" class="btn-cyber btn-primary">
+                <span data-i18n="btn_change_password">Change Password</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- 2. Card: Google Authenticator (TOTP) -->
+        <div class="cyber-card totp-security-card">
+          <div class="totp-card-header">
+            <div class="totp-icon-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="totp-shield-icon">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+            <div class="totp-header-meta">
+              <div class="totp-title-row">
+                <h3 class="card-title" data-i18n="card_2fa_title">Two-Factor Authentication (2FA)</h3>
+                <span class="badge-2fa-state" id="badge2faState">Checking...</span>
+              </div>
+              <p class="totp-card-desc" data-i18n-html="card_2fa_desc">
+                Protect your account with Google Authenticator time-based OTP codes.
+              </p>
+            </div>
+          </div>
+
+          <!-- Trạng thái 1: Khi 2FA đang TẮT -->
+          <div id="totpDisabledView" class="totp-body-view" style="display: none;">
+            <div class="totp-intro-box">
+              <div class="intro-step">
+                <span class="step-num">1</span>
+                <span data-i18n="totp_step_1">Install Google Authenticator app on your phone.</span>
+              </div>
+              <div class="intro-step">
+                <span class="step-num">2</span>
+                <span data-i18n="totp_step_2">Click setup button to get QR code and scan with your phone camera.</span>
+              </div>
+              <div class="intro-step">
+                <span class="step-num">3</span>
+                <span data-i18n="totp_step_3">Enter the 6-digit code displayed on your app to confirm activation.</span>
+              </div>
+            </div>
+
+            <div class="totp-action-row">
+              <button type="button" id="btnStart2FASetup" class="btn-cyber btn-primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+                <span data-i18n="btn_start_2fa">Enable 2FA</span>
+              </button>
+            </div>
+
+            <!-- Khu vực thiết lập hiển thị mã QR & OTP -->
+            <div id="totpSetupSection" class="totp-setup-section" style="display: none;">
+              <div class="setup-divider">
+                <span data-i18n="totp_scan_qr_title">Scan QR Code with Google Authenticator</span>
+              </div>
+
+              <div class="setup-grid">
+                <!-- QR Code Box -->
+                <div class="qr-code-box">
+                  <div class="qr-canvas-wrapper" id="qrCanvasContainer">
+                    <!-- QRCode.js renders here -->
+                  </div>
+                  <span class="qr-hint">Google Authenticator &gt; Scan QR</span>
+                </div>
+
+                <!-- Secret Key & Verification Form -->
+                <div class="setup-form-box">
+                  <div class="secret-key-section">
+                    <label data-i18n="totp_secret_label">Secret Key (enter manually if camera scan is not available):</label>
+                    <div class="secret-chip-box">
+                      <code class="secret-key-display" id="secretKeyDisplay">Generating...</code>
+                      <button type="button" id="btnCopySecret" class="btn-copy-chip" title="Copy secret key" data-i18n-title="btn_copy_secret">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                        </svg>
+                        <span id="txtCopySecret" data-i18n="btn_copy_secret">Copy</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <form id="formConfirm2FA" class="totp-verify-form">
+                    <label for="otpCodeInput" data-i18n="label_enter_otp">Enter 6-digit verification code from Google Authenticator:</label>
+                    <div class="otp-input-group">
+                      <input type="text" id="otpCodeInput" maxlength="6" inputmode="numeric" placeholder="000 000" autocomplete="one-time-code" required>
+                      <button type="submit" id="btnConfirm2FA" class="btn-cyber btn-success">
+                        <span data-i18n="btn_confirm_enable_2fa">Verify &amp; Enable 2FA</span>
+                      </button>
+                    </div>
+                    <div id="setupAlert" class="alert-box" style="display: none; margin-top: 10px;"></div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Trạng thái 2: Khi 2FA đang BẬT -->
+          <div id="totpEnabledView" class="totp-body-view" style="display: none;">
+            <div class="totp-active-banner">
+              <div class="active-banner-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  <polyline points="9 12 11 14 15 10"/>
+                </svg>
+              </div>
+              <div class="active-banner-content">
+                <h4 class="active-banner-title" data-i18n="totp_active_headline">Account is protected with Google Authenticator</h4>
+                <p class="active-banner-sub" data-i18n="totp_active_desc">
+                  Every time you sign in to WebConsole, a 6-digit OTP code from your phone app is required.
+                </p>
+                <span class="active-banner-time" id="totpVerifiedTime"></span>
+              </div>
+            </div>
+
+            <div class="totp-disable-row">
+              <button type="button" id="btnOpenDisable2FAModal" class="btn-cyber btn-danger-outline">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+                <span data-i18n="btn_disable_2fa">Disable 2FA</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Card: Passkey (Touch ID, Face ID, FIDO2) -->
+        <div class="cyber-card">
+          <div class="card-header">
+            <div class="passkey-header-wrap">
+              <div class="passkey-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 004.07 9m5.93 11a10.038 10.038 0 003.568-1.785"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="card-title" data-i18n="card_passkey_title">Biometric Login</h3>
+                <p class="passkey-sub" data-i18n="card_passkey_desc">Use Touch ID, Face ID, or security key to log straight into WebConsole in 1 second.</p>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="passkey-action-box">
+              <button type="button" id="btnRegisterNewPasskey" class="btn-cyber btn-primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 004.07 9m5.93 11a10.038 10.038 0 003.568-1.785"/>
+                </svg>
+                <span data-i18n="btn_add_passkey">Add Passkey</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Panel: Commands (Tùy chỉnh lệnh nhanh) -->
+      <section class="account-tab-panel" id="panelCommands">
+        <div class="panel-header">
+          <h2 class="panel-title" data-i18n="panel_commands_title">Custom Quick Commands</h2>
+          <p class="panel-subtitle" data-i18n="panel_commands_sub">Configure shortcut buttons on the Terminal toolbar for personal workflow.</p>
+        </div>
+
+        <div class="cyber-card">
+          <div class="card-header cmd-card-header">
+            <div>
+              <h3 class="card-title" data-i18n="card_commands_title">Shortcut Command List</h3>
+              <p class="card-desc" data-i18n="card_commands_desc">Clicking a command button on the Terminal toolbar will automatically execute the command in your SSH session.</p>
+            </div>
+            <button type="button" id="btnAddQuickCmd" class="btn-cyber btn-ghost">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span data-i18n="btn_add_cmd">Add Command</span>
+            </button>
+          </div>
+
+          <div class="card-body">
+            <div class="repeater-header-row">
+              <span class="col-num" data-i18n="col_num">#</span>
+              <span class="col-label" data-i18n="col_label">Display Label</span>
+              <span class="col-cmd" data-i18n="col_cmd">Execution Command</span>
+              <span class="col-action" data-i18n="col_action">Action</span>
+            </div>
+
+            <div id="quickCommandsList" class="commands-repeater-list">
+              <!-- Danh sách repeater được tạo động qua JS -->
+            </div>
+
+            <div class="repeater-bottom-actions">
+              <button type="button" id="btnResetDefaultCmds" class="btn-cyber btn-ghost" title="Reset to Default" data-i18n-title="btn_reset_default_cmds">
+                <span data-i18n="btn_reset_default_cmds">Reset to Default</span>
+              </button>
+              <button type="button" id="btnSaveQuickCmds" class="btn-cyber btn-primary">
+                <span data-i18n="btn_save_cmds">Save Commands</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Modal: Xác nhận tắt 2FA -->
+    <div id="modalDisable2FA" class="cyber-modal" style="display: none;">
+      <div class="modal-backdrop" id="backdropDisable2FA"></div>
+      <div class="modal-dialog modal-dialog-sm modal-danger-dialog">
+        <div class="modal-header modal-header-danger">
+          <div class="modal-title modal-title-danger">
+            <div class="modal-danger-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="modal-danger-icon">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            </div>
+            <span data-i18n="modal_disable_2fa_title">Disable 2-Factor Authentication</span>
+          </div>
+          <button id="btnCloseDisableModal" class="modal-close-btn" title="Close">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+
+        <form id="formDisable2FA" class="modal-body confirm-delete-body">
+          <p class="confirm-delete-msg" data-i18n="modal_disable_2fa_desc">
+            Enter the 6-digit code from Google Authenticator to confirm disabling:
+          </p>
+          <div class="form-group" style="margin-top: 10px;">
+            <label for="disableConfirmPassword" data-i18n="label_disable_2fa_code">6-digit code</label>
+            <div class="input-wrap">
+              <input type="text" id="disableConfirmPassword" maxlength="6" inputmode="numeric" placeholder="000 000" autocomplete="one-time-code" required style="font-family: var(--font-mono); font-size: 1.15rem; letter-spacing: 4px; text-align: center; color: #38bdf8; font-weight: 700;">
+            </div>
+          </div>
+          <div id="disableAlert" class="alert-box" style="display: none;"></div>
+
+          <div class="modal-footer modal-footer-dialog">
+            <button type="button" id="btnCancelDisable2FA" class="btn-cyber btn-ghost" data-i18n="btn_cancel">Cancel</button>
+            <button type="submit" id="btnConfirmDisable2FA" class="btn-cyber btn-danger">
+              <span data-i18n="btn_confirm_disable_2fa">Confirm Disable 2FA</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- Modal: Xác nhận Đăng xuất (Cyber Modal) -->
+    <div id="modalConfirmLogout" class="cyber-modal" style="display: none;">
+      <div class="modal-backdrop" id="logoutModalBackdrop"></div>
+      <div class="modal-dialog modal-dialog-sm modal-danger-dialog">
+        <div class="modal-header modal-header-danger">
+          <div class="modal-title modal-title-danger">
+            <div class="modal-danger-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="modal-danger-icon">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+            </div>
+            <span data-i18n="logout_modal_title">Logout WebConsole</span>
+          </div>
+          <button id="btnLogoutModalClose" class="modal-close-btn" title="Close">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+
+        <div class="modal-body confirm-delete-body">
+          <p class="confirm-delete-msg" data-i18n="logout_modal_desc">
+            Are you sure you want to log out of WebConsole? Open terminal sessions will be closed safely.
+          </p>
+
+          <div class="modal-footer modal-footer-dialog" style="margin-top: 16px;">
+            <button type="button" id="btnLogoutModalCancel" class="btn-cyber btn-ghost">
+              <span data-i18n="logout_modal_cancel">Cancel</span>
+            </button>
+            <button type="button" id="btnLogoutModalConfirm" class="btn-cyber btn-danger">
+              <span data-i18n="logout_modal_confirm">Logout</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Client QR Code Generator (Offline) -->
+  <script src="/qrcode.min.js"></script>
+
+  <!-- Internationalization (i18n) Module (Defaults to English) -->
+  <script src="../i18n.js?v=3"></script>
+
+  <!-- Account Application Logic -->
+  <script src="account.js?v=13"></script>
+</body>
+</html>

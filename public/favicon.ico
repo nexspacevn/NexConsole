@@ -1,0 +1,12 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">
+	<defs>
+		<image  width="500" height="500" id="img1" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfQAAAH0AQMAAADxGE3JAAAAAXNSR0IB2cksfwAAAANQTFRF////p8QbyAAAAHhJREFUeJztyzENAAAMA6DVv+mJ6NfAT64T3/d93/d93/d93/d93/d93/d93/d93/d93/d93/d93/d93/d93/d93/d93/d93/d93/d93/d93/d93/d93/d93/d93/d93/d93/d93/d93/d93/d93/d93/d93/dn/gPUpgH1slVP1AAAAABJRU5ErkJggg=="/>
+	</defs>
+	<style>
+		.s0 { fill: #1c1e21 } 
+		.s1 { fill: #0766ff } 
+	</style>
+	<use id="Background" href="#img1" x="0" y="0"/>
+	<path id="path2" class="s0" d="m203.28 247.39l-124.8-155.39h92.88l253.08 315.26h-92.58l-82.14-101.6-82.14 101.6h-92.58z"/>
+	<path id="path3" class="s1" d="m420.09 92h-214.2l107.64 134.03z"/>
+</svg>

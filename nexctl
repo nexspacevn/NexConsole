@@ -1,0 +1,7 @@
+#!/bin/bash
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BIN="$DIR/target/release/nexconsole"
+if [ ! -f "$BIN" ]; then
+  BIN="$DIR/target/debug/nexconsole"
+fi
+exec "$BIN" user "$@"

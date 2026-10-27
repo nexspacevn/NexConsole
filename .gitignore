@@ -1,0 +1,23 @@
+# Build target
+/target
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Environment variables & secrets
+.env
+.env.*
+!.env.example
+
+# Local SQLite databases & credentials
+servers.db
+servers.db-*
+passkeys.json
+
+# Logs
+*.log
+
+# Node & dependencies
+node_modules/
+dist/

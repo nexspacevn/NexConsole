@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NexConsole | Secure Terminal Gateway</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Xterm.js CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.min.css">
+  
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=2">
+  
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="style.css?v=30">
+  <script>
+    (function() {
+      try {
+        var token = localStorage.getItem('console_token');
+        if (token && token !== 'null' && token !== 'undefined') {
+          document.documentElement.classList.add('has-auth');
+        }
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <!-- ============================================== -->
+  <!-- VIEW 1: LỚP 1 - XÁC THỰC TRUY CẬP ỨNG DỤNG WEB -->
+  <!-- ============================================== -->
+  <div id="viewLogin" class="view-screen">
+    <!-- Top-Right Language Switcher -->
+    <div class="login-lang-corner">
+      <div class="lang-switcher">
+        <button type="button" class="lang-btn active" data-lang="en">EN</button>
+        <span class="lang-divider">|</span>
+        <button type="button" class="lang-btn" data-lang="vi">VI</button>
+      </div>
+    </div>
+
+    <div class="login-wrapper">
+      <!-- Cyber Ambient Elements -->
+      <div class="cyber-ambient-orb"></div>
+      <div class="cyber-grid-overlay"></div>
+
+      <div class="login-card">
+        <div class="login-header">
+          <div class="brand-logo-container">
+            <img src="nexicon-cl.svg" alt="NexConsole Logo" class="login-brand-logo" width="60" style="max-width: 60px; width: 60px; height: auto;">
+          </div>
+        </div>
+
+        <!-- Passkey Quick Login (Biometric Style) -->
+        <div id="passkeySection" class="passkey-section" style="display: none;">
+          <button type="button" id="btnPasskeyLogin" class="btn-passkey glow-passkey">
+            <div class="passkey-radar-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="fingerprint-icon">
+                <path d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 004.07 9m5.93 11a10.038 10.038 0 003.568-1.785"/>
+              </svg>
+            </div>
+            <div class="passkey-text-wrap">
+              <span class="passkey-main-text" data-i18n="passkey_quick_login">Quick Login</span>
+              <span class="passkey-sub-text" data-i18n="passkey_quick_sub">Fast access into the system with Passkey</span>
+            </div>
+          </button>
+          <div class="login-divider"><span data-i18n="or_access_account">Or access with account</span></div>
+        </div>
+
+        <form id="formLayer1" class="login-form">
+          <div class="cyber-field">
+            <div class="input-icon-box">
+              <span class="cyber-cli-tag">&gt;</span>
+              <input type="text" id="l1Username" placeholder="Access account [root / user]..." data-i18n-placeholder="username_placeholder" autocomplete="username" required autofocus>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="field-icon"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+          </div>
+
+          <div class="cyber-field">
+            <div class="input-icon-box">
+              <span class="cyber-cli-tag">#</span>
+              <input type="password" id="l1Password" placeholder="Security Key..." data-i18n-placeholder="password_placeholder" autocomplete="current-password" required>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="field-icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+          </div>
+
+          <div id="loginError" class="alert-box error-alert" style="display: none;"></div>
+
+          <button type="submit" id="btnLayer1Login" class="btn-primary cyber-cta glow-btn">
+            <span class="btn-text" data-i18n="login_btn">Authenticate &amp; Open Gateway</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="btn-arrow"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </form>
+
+        <!-- 2FA OTP Step (Google Authenticator) -->
+        <form id="form2FA" class="login-form" style="display: none;">
+          <div class="totp-badge-header">
+            <div class="totp-badge-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+            <div class="totp-header-text">
+              <h4 data-i18n="totp_title">Two-Factor Authentication (2FA)</h4>
+              <p data-i18n-html="totp_desc">Open <strong>Google Authenticator</strong> on your phone and enter the 6-digit code:</p>
+            </div>
+          </div>
+
+          <div class="cyber-field">
+            <div class="input-icon-box">
+              <span class="cyber-cli-tag">*</span>
+              <input type="text" id="l1TotpCode" placeholder="000 000" maxlength="6" inputmode="numeric" autocomplete="one-time-code" style="font-family: var(--font-mono); font-size: 1.25rem; letter-spacing: 5px; text-align: center; font-weight: 700; color: #38bdf8;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="field-icon"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+          </div>
+
+          <div id="totpLoginError" class="alert-box error-alert" style="display: none;"></div>
+
+          <button type="submit" id="btnVerify2FALogin" class="btn-primary cyber-cta glow-btn">
+            <span class="btn-text" data-i18n="verify_otp_btn">Verify OTP Code</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="btn-arrow"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+
+          <button type="button" id="btnBackToPassword" class="btn-link-back" data-i18n="back_to_password">
+            ← Back to password login
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- VIEW 2: LỚP 2 - GIAO DIỆN TERMINAL & SSH LOGIN -->
+  <!-- ============================================== -->
+  <div id="viewTerminal" class="view-screen" style="display: none;">
+    <!-- Top Bar -->
+    <header class="console-navbar">
+      <div class="console-brand">
+        <a href="/" class="brand-link" title="Trang chủ WebConsole">
+          <img src="nexicon-cl.svg" alt="NexConsole Logo" class="brand-logo-icon">
+          <span class="brand-title">NEXCONSOLE</span>
+        </a>
+      </div>
+
+      <!-- Controls -->
+      <div class="console-controls">
+        <div class="lang-switcher">
+          <button type="button" class="lang-btn active" data-lang="en">EN</button>
+          <span class="lang-divider">|</span>
+          <button type="button" class="lang-btn" data-lang="vi">VI</button>
+        </div>
+
+        <button id="btnRegisterPasskey" class="ctrl-btn passkey-btn" title="Add Touch ID / Passkey for this device" data-i18n-title="passkey_nav_title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 004.07 9m5.93 11a10.038 10.038 0 003.568-1.785"/>
+          </svg>
+          <span data-i18n="passkey_nav_btn">Passkey</span>
+        </button>
+        <button id="btnFontSizeMinus" class="ctrl-btn" title="Decrease font size" data-i18n-title="font_minus_title">A-</button>
+        <button id="btnFontSizePlus" class="ctrl-btn" title="Increase font size" data-i18n-title="font_plus_title">A+</button>
+        <button id="btnFullscreen" class="ctrl-btn" title="Fullscreen" data-i18n-title="fullscreen_title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        </button>
+        <button id="btnToggleSidebar" class="ctrl-btn" title="Toggle sidebar" data-i18n-title="toggle_sidebar_title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+        </button>
+        <!-- User Profile Dropdown Menu -->
+        <div class="user-profile-menu-container" id="userProfileMenuContainer">
+          <button type="button" class="user-profile-trigger" id="userProfileTrigger" title="User Account" data-i18n-title="user_profile_title" aria-expanded="false">
+            <div class="user-avatar-circle" id="userNavAvatar">AD</div>
+          </button>
+          
+          <div class="user-dropdown-popover" id="userDropdownPopover" style="display: none;">
+            <div class="dropdown-user-card">
+              <div class="dropdown-avatar-lg" id="dropdownAvatarLg">AD</div>
+              <div class="dropdown-details">
+                <div class="dropdown-name" id="dropdownFullName">Administrator</div>
+                <div class="dropdown-username" id="dropdownUserName">@admin</div>
+              </div>
+            </div>
+
+            <div class="dropdown-menu-list">
+              <a href="/account/?tab=profile" class="dropdown-menu-item" id="navLinkProfile">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+                <span data-i18n="nav_profile">Profile</span>
+              </a>
+
+              <a href="/account/?tab=security" class="dropdown-menu-item" id="navLinkSecurity">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+                <span data-i18n="nav_security">Security</span>
+              </a>
+
+              <a href="/account/" class="dropdown-menu-item" id="navLinkAccount">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                <span data-i18n="nav_settings">Settings</span>
+              </a>
+
+              <div class="dropdown-item-separator"></div>
+
+              <button type="button" class="dropdown-menu-item item-danger" id="btnLogoutLayer1">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                  <polyline points="16 17 21 12 16 7"/>
+                  <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+                <span data-i18n="nav_logout">Logout</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Passkey Enrollment Banner -->
+    <div id="passkeyBanner" class="passkey-banner glass-panel" style="display: none;">
+      <div class="passkey-banner-content">
+        <div class="passkey-banner-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 004.07 9m5.93 11a10.038 10.038 0 003.568-1.785"/>
+          </svg>
+        </div>
+        <div class="passkey-banner-text">
+          <strong data-i18n="passkey_banner_title">Fast login with Passkey (Touch ID)</strong>
+          <span data-i18n="passkey_banner_desc">Save your device biometrics to log directly into Layer 1 in 1 second next time.</span>
+        </div>
+      </div>
+      <div class="passkey-banner-actions">
+        <button id="btnBannerSavePasskey" class="btn-banner-action btn-cyan" data-i18n="btn_banner_save">Save Passkey Now</button>
+        <button id="btnBannerDismiss" class="btn-banner-action btn-ghost" data-i18n="btn_banner_dismiss">Later</button>
+      </div>
+    </div>
+
+    <!-- Main Workspace: Left Sidebar + Terminal -->
+    <div class="console-main-layout">
+      <!-- Left Sidebar: Server Fleet Manager & SSH -->
+      <aside id="consoleSidebar" class="console-sidebar">
+        <!-- Section: Saved Servers -->
+        <div class="sidebar-section">
+          <div class="sidebar-section-header">
+            <div class="section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sidebar-icon">
+                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
+                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
+                <line x1="6" y1="6" x2="6.01" y2="6"/>
+                <line x1="6" y1="18" x2="6.01" y2="18"/>
+              </svg>
+              <span data-i18n="sidebar_servers_title">Server List</span>
+            </div>
+            <button type="button" id="btnOpenAddServerModal" class="btn-sidebar-add-icon" title="Add Server" data-i18n-title="sidebar_add_server_btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Saved Servers List -->
+          <div id="savedServersList" class="saved-servers-list">
+            <div class="empty-servers-msg" data-i18n="sidebar_empty_servers">No servers added yet. Click "+" to connect.</div>
+          </div>
+        </div>
+
+        <!-- Section: Quick Manual Connect (Collapsible) -->
+        <div class="sidebar-section quick-connect-section">
+          <div class="sidebar-section-header clickable" id="toggleQuickConnectHeader">
+            <div class="section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sidebar-icon">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+              <span data-i18n="sidebar_quick_connect_title">Quick Connect</span>
+            </div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="collapse-icon" id="quickConnectChevron">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </div>
+
+          <div id="quickConnectBody" class="quick-connect-body">
+            <form id="sidebarSSHForm" class="sidebar-ssh-form" onsubmit="event.preventDefault();">
+              <div class="sidebar-field-group">
+                <div class="sidebar-input-box">
+                  <span class="sidebar-tag">@</span>
+                  <input type="text" id="quickSshName" placeholder="Server alias..." data-i18n-placeholder="placeholder_quick_name" autocomplete="off">
+                </div>
+              </div>
+
+              <div class="sidebar-field-group">
+                <div class="sidebar-input-box">
+                  <span class="sidebar-tag">&gt;</span>
+                  <input type="text" id="quickSshHost" value="localhost" placeholder="Server IP / Host..." data-i18n-placeholder="placeholder_quick_host" autocomplete="off">
+                </div>
+              </div>
+
+              <div class="sidebar-field-group">
+                <div class="sidebar-input-box">
+                  <span class="sidebar-tag">:</span>
+                  <input type="number" id="quickSshPort" placeholder="Port" data-i18n-placeholder="placeholder_quick_port" value="22" min="1" max="65535">
+                </div>
+              </div>
+
+              <div class="sidebar-field-group">
+                <div class="sidebar-input-box">
+                  <span class="sidebar-tag">#</span>
+                  <input type="text" id="quickSshUser" value="root" placeholder="Username (root)" data-i18n-placeholder="placeholder_quick_user" autocomplete="username">
+                </div>
+              </div>
+
+              <div class="sidebar-field-group">
+                <div class="sidebar-input-box">
+                  <span class="sidebar-tag">*</span>
+                  <input type="password" id="quickSshPass" placeholder="Password..." data-i18n-placeholder="placeholder_quick_pass" autocomplete="current-password">
+                </div>
+              </div>
+
+              <div class="sidebar-btn-row">
+                <button type="button" id="btnQuickSave" class="btn-sidebar-save" title="Save" data-i18n-title="btn_quick_save">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="save-icon">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                    <polyline points="17 21 17 13 7 13 7 21"/>
+                    <polyline points="7 3 7 8 15 8"/>
+                  </svg>
+                  <span id="txtQuickSave" data-i18n="btn_quick_save">Save</span>
+                </button>
+                <button type="button" id="btnQuickConnect" class="btn-sidebar-connect" title="Connect" data-i18n-title="btn_quick_connect">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="connect-icon"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  <span id="txtQuickConnect" data-i18n="btn_quick_connect">Connect</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </aside>
+      <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+
+      <!-- Terminal Area with Tab Bar -->
+      <div class="terminal-area">
+        <!-- Terminal Tabs Bar -->
+        <div class="terminal-tabs-bar">
+          <div id="tabsContainer" class="tabs-container">
+            <!-- Tabs dynamically rendered by JS -->
+          </div>
+          <button id="btnNewTab" class="btn-new-tab" title="Open new SSH tab" data-i18n-title="btn_new_tab_title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+
+        <!-- Terminal Viewports Container -->
+        <main class="terminal-wrapper">
+          <div id="terminalContainer" class="terminal-viewports"></div>
+        </main>
+
+        <!-- Quick Commands Shortcuts Bar -->
+        <footer class="shortcuts-bar">
+          <span class="shortcuts-label" data-i18n="shortcuts_label">Quick Commands:</span>
+          <button class="cmd-chip" data-cmd="clear">clear</button>
+          <button class="cmd-chip" data-cmd="htop">htop</button>
+          <button class="cmd-chip" data-cmd="pm2 list">pm2 list</button>
+          <button class="cmd-chip" data-cmd="free -h">free -h</button>
+          <button class="cmd-chip" data-cmd="df -h /">df -h /</button>
+          <button class="cmd-chip" data-cmd="systemctl status postgresql">status postgresql</button>
+          <button class="cmd-chip" data-cmd="systemctl status nginx">status nginx</button>
+          <button class="cmd-chip" data-cmd="ss -tulnp">open ports</button>
+        </footer>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Thêm / Chỉnh sửa Máy Chủ (SQLite + AES-256) -->
+  <div id="modalServer" class="cyber-modal" style="display: none;">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="modal-title-icon">
+            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
+            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
+            <line x1="6" y1="6" x2="6.01" y2="6"/>
+            <line x1="6" y1="18" x2="6.01" y2="18"/>
+          </svg>
+          <span id="modalServerTitle" data-i18n="modal_server_add_title">Add New Server</span>
+        </div>
+        <button id="btnModalClose" class="modal-close-btn" title="Close">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <form id="formServerModal" class="modal-body" onsubmit="event.preventDefault();">
+        <input type="hidden" id="serverModalId" value="">
+        
+        <div class="modal-field">
+          <label for="serverModalName" data-i18n="label_server_name">Server Name</label>
+          <div class="modal-input-box">
+            <input type="text" id="serverModalName" placeholder="e.g. Production Cluster #01" data-i18n-placeholder="placeholder_server_name" required>
+          </div>
+        </div>
+
+        <div class="modal-row">
+          <div class="modal-field flex-2">
+            <label for="serverModalHost" data-i18n="label_server_host">IP Address / Hostname</label>
+            <div class="modal-input-box">
+              <input type="text" id="serverModalHost" placeholder="192.168.1.100 or server.domain.com" data-i18n-placeholder="placeholder_server_host" required>
+            </div>
+          </div>
+          <div class="modal-field flex-1">
+            <label for="serverModalPort" data-i18n="label_server_port">SSH Port</label>
+            <div class="modal-input-box">
+              <input type="number" id="serverModalPort" value="22" min="1" max="65535" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-field">
+          <label for="serverModalUser" data-i18n="label_server_user">SSH Username</label>
+          <div class="modal-input-box">
+            <input type="text" id="serverModalUser" value="root" placeholder="root" required>
+          </div>
+        </div>
+
+        <div class="modal-field">
+          <label for="serverModalPass" data-i18n="label_server_pass">SSH Password</label>
+          <div class="modal-input-box">
+            <input type="password" id="serverModalPass" placeholder="Enter server password..." data-i18n-placeholder="placeholder_server_pass" autocomplete="new-password">
+          </div>
+        </div>
+
+        <div id="modalServerAlert" class="alert-box error-alert" style="display: none;"></div>
+
+        <div class="modal-footer">
+          <button type="button" id="btnModalCancel" class="btn-modal btn-ghost" data-i18n="btn_cancel">Cancel</button>
+          <button type="submit" id="btnModalSave" class="btn-modal btn-primary">
+            <span data-i18n="btn_save_server">Save Server</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Xác Nhận Xóa Máy Chủ -->
+  <div id="modalConfirmDelete" class="cyber-modal" style="display: none;">
+    <div class="modal-backdrop" id="deleteModalBackdrop"></div>
+    <div class="modal-dialog modal-dialog-sm modal-danger-dialog">
+      <div class="modal-header modal-header-danger">
+        <div class="modal-title modal-title-danger">
+          <div class="modal-danger-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="modal-danger-icon">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              <line x1="10" y1="11" x2="10" y2="17"/>
+              <line x1="14" y1="11" x2="14" y2="17"/>
+            </svg>
+          </div>
+          <span data-i18n="modal_delete_server_title">Delete Server</span>
+        </div>
+        <button id="btnDeleteModalClose" class="modal-close-btn" title="Close">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <div class="modal-body confirm-delete-body">
+        <div class="delete-server-preview-box">
+          <div class="delete-preview-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
+              <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
+              <line x1="6" y1="6" x2="6.01" y2="6"/>
+              <line x1="6" y1="18" x2="6.01" y2="18"/>
+            </svg>
+          </div>
+          <div class="delete-preview-content">
+            <div class="delete-preview-title" id="deleteServerTargetName">Server Name</div>
+            <div class="delete-preview-detail" id="deleteServerTargetDetail">user@host:port</div>
+          </div>
+        </div>
+
+        <div class="delete-warning-box">
+          <svg class="delete-warning-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <span data-i18n="modal_delete_server_warning">This action cannot be undone. Saved credentials will be permanently erased.</span>
+        </div>
+
+        <div id="deleteModalAlert" class="alert-box error-alert" style="display: none;"></div>
+      </div>
+
+      <div class="modal-footer modal-footer-dialog">
+        <button type="button" id="btnDeleteModalCancel" class="btn-modal btn-ghost" data-i18n="btn_cancel">Cancel</button>
+        <button type="button" id="btnDeleteModalConfirm" class="btn-modal btn-danger">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; margin-right: 6px;">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+          <span id="btnDeleteModalConfirmText" data-i18n="btn_confirm_delete">Delete Server</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Xác Nhận Đăng Xuất (Cyber Modal) -->
+  <div id="modalConfirmLogout" class="cyber-modal" style="display: none;">
+    <div class="modal-backdrop" id="logoutModalBackdrop"></div>
+    <div class="modal-dialog modal-dialog-sm modal-danger-dialog">
+      <div class="modal-header modal-header-danger">
+        <div class="modal-title modal-title-danger">
+          <div class="modal-danger-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="modal-danger-icon">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+          </div>
+          <span data-i18n="logout_modal_title">Logout WebConsole</span>
+        </div>
+        <button id="btnLogoutModalClose" class="modal-close-btn" title="Close">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <div class="modal-body confirm-delete-body">
+        <p style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5; margin: 0;" data-i18n="logout_modal_desc">
+          Are you sure you want to log out of WebConsole? Open terminal sessions will be closed safely.
+        </p>
+      </div>
+
+      <div class="modal-footer modal-footer-dialog">
+        <button type="button" id="btnLogoutModalCancel" class="btn-modal btn-ghost">
+          <span data-i18n="logout_modal_cancel">Cancel</span>
+        </button>
+        <button type="button" id="btnLogoutModalConfirm" class="btn-modal btn-danger">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; margin-right: 4px;">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          <span data-i18n="logout_modal_confirm">Logout</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Xterm.js & Addons -->
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/lib/addon-fit.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-web-links@0.11.0/lib/addon-web-links.min.js"></script>
+
+  <!-- Internationalization (i18n) Module (Defaults to English) -->
+  <script src="i18n.js?v=3"></script>
+
+  <!-- Client Application Logic -->
+  <script src="app.js?v=29"></script>
+</body>
+</html>
